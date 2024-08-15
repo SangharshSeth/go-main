@@ -2,14 +2,24 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"runtime"
+
+	"github.com/joho/godotenv"
 )
+
+func init(){
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error Loading .env file")
+	}
+}
 
 func main(){
 	fmt.Println(runtime.GOOS)
 	fmt.Println(runtime.GOARCH)
 	fmt.Println(runtime.NumCPU())
 	fmt.Println(runtime.NumGoroutine())
-	fmt.Println("Hello World!")
-	fmt.Printf("Docker Rocks!!!,\t Coming for you Kubernetes!")
+	fmt.Printf("Port is %s", os.Getenv("PORT"))
+
 }
