@@ -1,0 +1,21 @@
+FROM golang:alpine AS build
+
+WORKDIR /app
+
+COPY go.mod ./
+
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o bin/main cmd/main/main.go
+
+FROM alpine:edge
+
+WORKDIR /app
+
+COPY --from=build /app/bin/main ./bin/main
+
+RUN apk --no-cache add ca-certificates tzdata
+
+CMD ["./bin/main"]
