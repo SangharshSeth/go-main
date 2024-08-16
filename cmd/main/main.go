@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/joho/godotenv"
+	"github.com/sangharshseth/internal/database"
 	"github.com/sangharshseth/internal/handlers"
 	"log"
 	"net/http"
+	"os"
 )
 
 func init() {
@@ -14,10 +16,11 @@ func init() {
 }
 
 func main() {
-
+	os.Getenv()
+	database.ConnectMongo(os.Getenv("MONGO_URI"))
+	defer database.DisconnectMongo()
 	mux := http.NewServeMux()
 	// Set up routes
-	handlers.SetupRoutes(mux)
 	handlers.SetupVideoRoutes(mux)
 
 	// Start the server

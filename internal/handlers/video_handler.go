@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/sangharshseth/internal/database"
 	"io"
 	"net/http"
 	"os"
 )
 
-func ProcessImage(w http.ResponseWriter, r *http.Request){
+func ProcessImage(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10 << 20) // 10 MB
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -22,6 +23,7 @@ func ProcessImage(w http.ResponseWriter, r *http.Request){
 	}
 	defer file.Close()
 
+	collection := database.Client.Database("development").Collection("images")
 	// Create a destination file where the video will be saved
 	dst, err := os.Create(handler.Filename)
 	if err != nil {
@@ -41,5 +43,5 @@ func ProcessImage(w http.ResponseWriter, r *http.Request){
 }
 
 func SetupVideoRoutes(mux *http.ServeMux) {
-    mux.HandleFunc("POST /process-image", ProcessImage)
+	mux.HandleFunc("POST /process-image", ProcessImage)
 }
