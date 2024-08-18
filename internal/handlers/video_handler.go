@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"fmt"
-	"github.com/sangharshseth/internal/database"
-	"io"
+	"encoding/json"
 	"net/http"
-	"os"
+
+	"github.com/sangharshseth/internal/queue"
+	"github.com/sangharshseth/internal/storage"
 )
 
 func ProcessImage(w http.ResponseWriter, r *http.Request) {
@@ -15,31 +15,31 @@ func ProcessImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Retrieve the file from the form-data
-	file, handler, err := r.FormFile("image")
+	file, _, err := r.FormFile("image")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	collection := database.Client.Database("development").Collection("images")
-	// Create a destination file where the video will be saved
-	dst, err := os.Create(handler.Filename)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
+	uploaded_image := storage.UploadImageToCloudinary(file)
 
-	// Copy the file content to the destination file
-	if _, err := io.Copy(dst, file); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	type Response struct {
+		Status   string `json:"status"`
+		ImageURL string `json:"image_url"`
 	}
 
-	// Respond with a success message
-	fmt.Fprintf(w, "File uploaded successfully: %s", handler.Filename)
+	response := Response{
+		Status:   "success",
+		ImageURL: uploaded_image,
+	}
+
+	sqsSender := queue.NewSqsSender("https://sqs.ap-south-1.amazonaws.com/873403696572/Image-Processor", "web-developer")
+	sqsSender.SendMessageToSQS(uploaded_image)
+	
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+
 }
 
 func SetupVideoRoutes(mux *http.ServeMux) {
