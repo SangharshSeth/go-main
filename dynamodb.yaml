@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  TableName:
+    Description: "The name of the DynamoDB table"
+    Type: String
+    Default: "ImagesTable"
+
+  PartitionKeyName:
+    Description: "The name of the partition key (primary key)"
+    Type: String
+    Default: "userId"
+
+  ReadCapacityUnits:
+    Description: "The number of read capacity units for the table"
+    Type: Number
+    Default: 5
+    MinValue: 1
+
+  WriteCapacityUnits:
+    Description: "The number of write capacity units for the table"
+    Type: Number
+    Default: 5
+    MinValue: 1
+
+Resources:
+  DynamoDBTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: !Ref PartitionKeyName
+          AttributeType: "S" # S denotes String type
+      KeySchema:
+        - AttributeName: !Ref PartitionKeyName
+          KeyType: "HASH" # HASH denotes Partition Key
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+
+Outputs:
+  TableName:
+    Description: "The name of the DynamoDB table"
+    Value: !Ref DynamoDBTable
+    Export:
+      Name: !Sub "${AWS::StackName}-TableName"
