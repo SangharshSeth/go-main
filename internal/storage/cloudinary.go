@@ -4,9 +4,11 @@ import (
 	"context"
 	"log"
 	"mime/multipart"
+
 	"github.com/cloudinary/cloudinary-go"
 	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/cloudinary/cloudinary-go/v2/api"
+	"github.com/google/uuid"
 )
 
 func UploadImageToCloudinary(file multipart.File) string{
@@ -19,7 +21,7 @@ func UploadImageToCloudinary(file multipart.File) string{
 		ctx,
 		file,
 		uploader.UploadParams{
-			PublicID:       "image2",
+			PublicID:       uuid.New().String(),
 			UseFilename:    *api.Bool(true),
 			UniqueFilename: *api.Bool(true),
 			Overwrite:      *api.Bool(true)})
