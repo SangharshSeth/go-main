@@ -1,17 +1,16 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
 	"github.com/sangharshseth/internal/handlers"
 	"log"
 	"net/http"
 )
 
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error Loading .env file")
-	}
-}
+// func init() {
+// 	if err := godotenv.Load(); err != nil {
+// 		log.Fatal("Error Loading .env file")
+// 	}
+// }
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers
