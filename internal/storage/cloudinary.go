@@ -2,32 +2,40 @@ package storage
 
 import (
 	"context"
-	"log"
+	"github.com/cloudinary/cloudinary-go/v2/api"
 	"mime/multipart"
 
-	"github.com/cloudinary/cloudinary-go"
-	"github.com/cloudinary/cloudinary-go/api/uploader"
-	"github.com/cloudinary/cloudinary-go/v2/api"
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/google/uuid"
 )
 
-func UploadImageToCloudinary(file multipart.File) string{
-	cld, err := cloudinary.New()
+// Global Cloudinary client
+var cld *cloudinary.Cloudinary
+
+// Initialize the Cloudinary client once
+func init() {
+	var err error
+	cld, err = cloudinary.New()
 	if err != nil {
-		log.Fatalf("Failed to initialize Cloudinary, %v", err)
+		// Handle initialization error, perhaps panic or log it
+		panic(err)
 	}
-	var ctx = context.Background()
+}
+
+func UploadImageToCloudinary(ctx context.Context, file multipart.File) (string, error) {
 	uploadResult, err := cld.Upload.Upload(
 		ctx,
 		file,
 		uploader.UploadParams{
 			PublicID:       uuid.New().String(),
-			UseFilename:    *api.Bool(true),
-			UniqueFilename: *api.Bool(true),
-			Overwrite:      *api.Bool(true)})
+			UseFilename:    api.Bool(true),
+			UniqueFilename: api.Bool(true),
+			Overwrite:      api.Bool(false),
+		})
 	if err != nil {
-		log.Fatalf("Failed to upload file, %v\n", err)
+		return "", err
 	}
 
-	return uploadResult.SecureURL
+	return uploadResult.SecureURL, nil
 }

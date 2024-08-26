@@ -28,7 +28,10 @@ func ProcessImage(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	uploaded_image := storage.UploadImageToCloudinary(file)
+	uploadedImage, err := storage.UploadImageToCloudinary(r.Context(), file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 
 	type Response struct {
 		Status   string `json:"status"`
@@ -37,11 +40,11 @@ func ProcessImage(w http.ResponseWriter, r *http.Request) {
 
 	response := Response{
 		Status:   "success",
-		ImageURL: uploaded_image,
+		ImageURL: uploadedImage,
 	}
 
 	sqsSender := queue.NewSqsSender(os.Getenv("SQS_URL"), "web-developer")
-	sqsSender.SendMessageToSQS(uploaded_image)
+	sqsSender.SendMessageToSQS(uploadedImage)
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
