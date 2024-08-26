@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/sangharshseth/internal/queue"
 	"github.com/sangharshseth/internal/storage"
@@ -20,7 +22,11 @@ func ProcessImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer func() {
+		if cerr := file.Close(); cerr != nil {
+			log.Printf("Failed to close file: %v", cerr)
+		}
+	}()
 
 	uploaded_image := storage.UploadImageToCloudinary(file)
 
@@ -34,11 +40,14 @@ func ProcessImage(w http.ResponseWriter, r *http.Request) {
 		ImageURL: uploaded_image,
 	}
 
-	sqsSender := queue.NewSqsSender("https://sqs.ap-south-1.amazonaws.com/873403696572/Image-Processor", "web-developer")
+	sqsSender := queue.NewSqsSender(os.Getenv("SQS_URL"), "web-developer")
 	sqsSender.SendMessageToSQS(uploaded_image)
-	
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		panic(err)
+	}
 
 }
 
