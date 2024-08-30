@@ -11,3 +11,6 @@ jobs:
     steps:
       - name: Greetings
         run: echo "Hello World!"
+
+      - name: Golangci-lint
+        uses: golangci/golangci-lint-action@v6.1.0

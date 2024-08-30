@@ -2,8 +2,11 @@ package storage
 
 import (
 	"context"
-	"github.com/cloudinary/cloudinary-go/v2/api"
+	"fmt"
 	"mime/multipart"
+	"os"
+
+	"github.com/cloudinary/cloudinary-go/v2/api"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -11,19 +14,24 @@ import (
 )
 
 // Global Cloudinary client
-var cld *cloudinary.Cloudinary
+// var cld *cloudinary.Cloudinary
 
-// Initialize the Cloudinary client once
 func init() {
-	var err error
-	cld, err = cloudinary.New()
+	fmt.Print(os.Getenv("CLOUDINARY_URL"))
+	// var err error
+	// cld, err = cloudinary.New()
+	// if err != nil {
+	// 	// Handle initialization error, perhaps panic or log it
+	// 	panic(err)
+	// }
+}
+
+func UploadImageToCloudinary(ctx context.Context, file multipart.File) (string, error) {
+	cld, err := cloudinary.New()
 	if err != nil {
 		// Handle initialization error, perhaps panic or log it
 		panic(err)
 	}
-}
-
-func UploadImageToCloudinary(ctx context.Context, file multipart.File) (string, error) {
 	uploadResult, err := cld.Upload.Upload(
 		ctx,
 		file,

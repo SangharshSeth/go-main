@@ -25,7 +25,6 @@ require (
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.27.28
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.4
-	github.com/cloudinary/cloudinary-go v1.7.0
 	github.com/cloudinary/cloudinary-go/v2 v2.8.0
 	github.com/creasty/defaults v1.7.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect

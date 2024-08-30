@@ -4,16 +4,28 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/sangharshseth/internal/handlers"
+	"github.com/sangharshseth/internal/webhooks"
 )
 
 func init() {
+	fmt.Print("THIS EXECUTES FIRST")
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error Loading .env file")
 	}
 }
+
+func loggerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Printf("%s %s %s %s", r.Method, r.RequestURI, r.Proto, time.Since(start))
+	})
+}
+
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers
@@ -40,10 +52,12 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "HealthCheck OK")
 	})
+	mux.HandleFunc("/webhook", webhooks.WebhookHandler)
+	handler := loggerMiddleware(withCORS(mux))
 
 	// Start the server
 	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", withCORS(mux)); err != nil {
+	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 
