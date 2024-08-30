@@ -34,5 +34,8 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("%sWebhook received: %s%s", ColorGreen, payload.Data, ColorReset)
 	w.Header().Set("Content-Type", "text/plain")
-	w.Write([]byte("Webhook received and processed successfully"))
+	_, err := w.Write([]byte("Webhook received and processed successfully"))
+	if err != nil {
+		log.Printf("%sFailed to write response: %v%s", ColorRed, err, ColorReset)
+	}
 }
