@@ -47,12 +47,11 @@ func main() {
 
 	mux := http.NewServeMux()
 	// Set up routes
-	handlers.SetupVideoRoutes(mux)
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "HealthCheck OK")
-	})
+	handlers.ImageProcessor(mux)
+
 	mux.HandleFunc("/webhook", webhooks.WebhookHandler)
+	mux.HandleFunc("/websocket", handlers.WebSockets)
+
 	handler := loggerMiddleware(withCORS(mux))
 
 	// Start the server

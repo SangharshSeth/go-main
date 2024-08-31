@@ -50,7 +50,6 @@ func ProcessImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prepare data for SQS.
 	queueData := &QueueMessageData{
 		ImageOptions: options,
 		ImageURL:     uploadedImage,
@@ -126,6 +125,6 @@ func sendJSONResponse(w http.ResponseWriter, imageURL string, options *ImageOpti
 }
 
 // SetupVideoRoutes sets up the routes for video processing.
-func SetupVideoRoutes(mux *http.ServeMux) {
+func ImageProcessor(mux *http.ServeMux) {
 	mux.HandleFunc("/process-image", ProcessImage)
 }

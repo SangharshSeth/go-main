@@ -30,6 +30,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.5.0
 	github.com/gorilla/schema v1.4.1 // indirect
+	github.com/gorilla/websocket v1.5.3
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
